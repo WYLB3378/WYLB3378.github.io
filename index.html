@@ -1,0 +1,204 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
+  <title>泽璇电竞</title>
+  <style>
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    html, body { height: 100%; font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif; -webkit-font-smoothing: antialiased; }
+
+    /* 加载动画 */
+    .loading-screen {
+      position: fixed; inset: 0; background: #fff;
+      display: flex; flex-direction: column; align-items: center; justify-content: center;
+      z-index: 9999; transition: opacity 0.4s ease;
+    }
+    .loading-screen.hide { opacity: 0; pointer-events: none; }
+    .loading-ring { position: relative; width: 48px; height: 48px; margin-bottom: 20px; }
+    .loading-ring::before, .loading-ring::after {
+      content: ""; position: absolute; inset: 0; border-radius: 50%;
+      border: 2px solid transparent;
+    }
+    .loading-ring::before {
+      border-top-color: #1677ff; border-right-color: #1677ff;
+      animation: spin 0.9s cubic-bezier(0.4, 0, 0.2, 1) infinite;
+    }
+    .loading-ring::after {
+      inset: 4px; border-top-color: rgba(22, 119, 255, 0.35);
+      animation: spin 1.4s cubic-bezier(0.4, 0, 0.2, 1) infinite reverse;
+    }
+    .loading-text {
+      color: #666; font-size: 14px; font-weight: 500; letter-spacing: 0.5px;
+      animation: breathe 1.8s ease-in-out infinite;
+    }
+    @keyframes spin { to { transform: rotate(360deg); } }
+    @keyframes breathe { 0%, 100% { opacity: 0.4; } 50% { opacity: 1; } }
+
+    /* 首页 */
+    .home-page {
+      min-height: 100vh;
+      background: radial-gradient(ellipse at top, #e0edff 0%, #f5f5f7 50%, #eef2f7 100%);
+      display: flex; flex-direction: column; align-items: center; justify-content: center;
+      padding: 24px;
+    }
+    .avatar-wrap {
+      width: 220px; height: 220px; border-radius: 50%;
+      border: 4px solid #fff; box-shadow: 0 12px 35px rgba(0, 0, 0, 0.1);
+      overflow: hidden; margin-bottom: 32px;
+      transition: transform 0.4s cubic-bezier(0.2, 0.8, 0.2, 1), box-shadow 0.4s ease;
+    }
+    .avatar-wrap:hover {
+      transform: translateY(-6px) scale(1.02);
+      box-shadow: 0 20px 45px rgba(0, 0, 0, 0.15);
+    }
+    .avatar-wrap img { width: 100%; height: 100%; object-fit: cover; display: block; }
+    .main-title {
+      font-size: 48px; font-weight: 700; color: #1677ff;
+      margin-bottom: 16px; letter-spacing: 2px;
+    }
+    .sub-text { font-size: 20px; color: #666; margin-bottom: 48px; }
+    .btn-group { display: flex; gap: 20px; width: 100%; max-width: 420px; }
+    .btn {
+      flex: 1; height: 52px; border-radius: 999px;
+      display: flex; align-items: center; justify-content: center; gap: 8px;
+      font-size: 16px; font-weight: 500; text-decoration: none;
+      box-shadow: 0 4px 14px rgba(0, 0, 0, 0.08);
+      transition: transform 0.3s cubic-bezier(0.2, 0.8, 0.2, 1), box-shadow 0.3s ease;
+      cursor: pointer; border: none;
+    }
+    .btn:hover { transform: translateY(-4px); box-shadow: 0 8px 24px rgba(0, 0, 0, 0.12); }
+    .btn:active { transform: translateY(2px) scale(0.98); }
+    .btn-blue { background: #1677ff; color: #fff; }
+    .btn-white { background: #fff; color: #333; }
+    .btn svg { width: 18px; height: 18px; }
+
+    /* 入场动画 */
+    .fade-up {
+      opacity: 0; transform: translateY(24px);
+      animation: fadeUp 0.6s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+    }
+    .fade-up.delay-1 { animation-delay: 0.1s; }
+    .fade-up.delay-2 { animation-delay: 0.2s; }
+    .fade-up.delay-3 { animation-delay: 0.3s; }
+    @keyframes fadeUp { to { opacity: 1; transform: translateY(0); } }
+
+    /* 关于本站页 */
+    .about-page { min-height: 100vh; background: #fff; display: flex; flex-direction: column; }
+    .back-btn {
+      padding: 16px 20px; display: inline-flex; align-items: center; gap: 6px;
+      color: #1677ff; font-size: 14px; font-weight: 500;
+      text-decoration: none; cursor: pointer; background: none; border: none;
+    }
+    .back-btn svg { width: 16px; height: 16px; }
+    .about-content {
+      flex: 1; padding: 8px 24px 24px;
+      max-width: 480px; margin: 0 auto; width: 100%;
+    }
+    .about-text { color: #666; font-size: 15px; line-height: 1.8; margin-bottom: 32px; }
+    .about-text p { margin-bottom: 16px; }
+    .about-text p:last-child { margin-bottom: 0; }
+    .cards-grid { display: flex; flex-direction: column; gap: 12px; }
+    .cards-row { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+    .card {
+      background: #f5f5f7; border-radius: 16px; padding: 24px 20px;
+      box-shadow: 0 1px 3px rgba(0, 0, 0, 0.04);
+    }
+    .card-value { font-size: 28px; font-weight: 700; color: #1677ff; margin-bottom: 4px; }
+    .card-label { font-size: 13px; color: #999; }
+
+    /* 页面切换 */
+    .page { display: none; }
+    .page.active { display: flex; }
+    .home-page.page.active { display: flex; }
+    .about-page.page.active { display: flex; flex-direction: column; }
+  </style>
+</head>
+<body>
+  <!-- 加载动画 -->
+  <div class="loading-screen" id="loadingScreen">
+    <div class="loading-ring"></div>
+    <div class="loading-text">正在加载...</div>
+  </div>
+
+  <!-- 首页 -->
+  <div class="page home-page active" id="homePage">
+    <div class="avatar-wrap fade-up">
+      <img src="https://aka.doubaocdn.com/s/2kGE1wekNr" alt="泽璇电竞" />
+    </div>
+    <h1 class="main-title fade-up delay-1">泽璇电竞</h1>
+    <p class="sub-text fade-up delay-2">泽璇电竞大量招募打手～</p>
+    <div class="btn-group fade-up delay-3">
+      <a href="https://qm.qq.com/q/cv4EK9ggcE" target="_blank" class="btn btn-blue">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/>
+          <circle cx="12" cy="7" r="4"/>
+        </svg>
+        当打手
+      </a>
+      <button class="btn btn-white" onclick="showAbout()">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <polyline points="16 18 22 12 16 6"/>
+          <polyline points="8 6 2 12 8 18"/>
+        </svg>
+        关于本站
+      </button>
+    </div>
+  </div>
+
+  <!-- 关于本站页 -->
+  <div class="page about-page" id="aboutPage">
+    <button class="back-btn" onclick="showHome()">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+        <line x1="19" y1="12" x2="5" y2="12"/>
+        <polyline points="12 19 5 12 12 5"/>
+      </svg>
+      返回
+    </button>
+    <div class="about-content">
+      <div class="about-text">
+        <p>本站由：<br/>泽璇电竞副董事长独立开源搭建</p>
+        <p>如您也感兴趣，可联系QQ 2361932981<br/>免费获取工程文件</p>
+        <p>开发技术：PHP + HTML + CSS + JS</p>
+      </div>
+      <div class="cards-grid">
+        <div class="cards-row">
+          <div class="card">
+            <div class="card-value">500G</div>
+            <div class="card-label">DDos防御</div>
+          </div>
+          <div class="card">
+            <div class="card-value">80万</div>
+            <div class="card-label">CC防护</div>
+          </div>
+        </div>
+        <div class="card">
+          <div class="card-value">JavaScript</div>
+          <div class="card-label">交互逻辑</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    window.addEventListener('load', function() {
+      setTimeout(function() {
+        var loading = document.getElementById('loadingScreen');
+        loading.classList.add('hide');
+        setTimeout(function() { loading.style.display = 'none'; }, 400);
+      }, 600);
+    });
+
+    function showAbout() {
+      document.getElementById('homePage').classList.remove('active');
+      document.getElementById('aboutPage').classList.add('active');
+      window.scrollTo(0, 0);
+    }
+    function showHome() {
+      document.getElementById('aboutPage').classList.remove('active');
+      document.getElementById('homePage').classList.add('active');
+      window.scrollTo(0, 0);
+    }
+  </script>
+</body>
+</html>
