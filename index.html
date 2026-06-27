@@ -1,0 +1,2475 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
+  <title>泽璇电竞</title>
+  <style>
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    html, body { height: 100%; font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif; -webkit-font-smoothing: antialiased; }
+    /* ========== 加载动画（流光序幕 — 质变级全新设计） ========== */
+    .loading-screen {
+      position: fixed; inset: 0;
+      background: #070710;
+      display: flex; flex-direction: column; align-items: center; justify-content: center;
+      z-index: 9999; transition: opacity 0.5s ease;
+      overflow: hidden;
+      will-change: opacity;
+    }
+    .loading-screen.hide { opacity: 0; pointer-events: none; }
+
+    /* ===== 扫光遮罩 ===== */
+    .loader-sweep {
+      position: absolute;
+      inset: 0;
+      background: linear-gradient(90deg, transparent 0%, rgba(22, 119, 255, 0.03) 30%, rgba(245, 197, 24, 0.03) 50%, rgba(22, 119, 255, 0.03) 70%, transparent 100%);
+      transform: translateX(-100%);
+      animation: sweepBeam 2.5s ease-in-out infinite;
+    }
+    @keyframes sweepBeam {
+      0% { transform: translateX(-100%); }
+      50% { transform: translateX(100%); }
+      100% { transform: translateX(100%); }
+    }
+
+    /* ===== 中心主容器 ===== */
+    .loader-stage {
+      position: relative;
+      width: 150px;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+    }
+
+    /* ===== 几何装饰线（上方） ===== */
+    .loader-geo {
+      width: 100%;
+      height: 28px;
+      position: relative;
+      margin-bottom: 16px;
+      overflow: hidden;
+    }
+    .loader-geo-line {
+      position: absolute;
+      height: 1px;
+      background: linear-gradient(90deg, transparent, rgba(22, 119, 255, 0.15), transparent);
+      left: 10%; right: 10%;
+      top: 0;
+      animation: geoPulse 2s ease-in-out infinite;
+    }
+    .loader-geo-line:nth-child(2) {
+      top: 7px;
+      left: 20%; right: 20%;
+      animation-delay: 0.3s;
+      background: linear-gradient(90deg, transparent, rgba(245, 197, 24, 0.1), transparent);
+    }
+    .loader-geo-line:nth-child(3) {
+      top: 14px;
+      left: 15%; right: 15%;
+      animation-delay: 0.6s;
+      background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.06), transparent);
+    }
+    .loader-geo-line:nth-child(4) {
+      top: 21px;
+      left: 25%; right: 25%;
+      animation-delay: 0.9s;
+      background: linear-gradient(90deg, transparent, rgba(22, 119, 255, 0.08), transparent);
+    }
+    @keyframes geoPulse {
+      0%, 100% { opacity: 0.2; transform: scaleX(0.8); }
+      50% { opacity: 1; transform: scaleX(1); }
+    }
+
+    /* ===== Logo 区块 ===== */
+    .loader-brand {
+      position: relative;
+      width: 68px;
+      height: 68px;
+      margin-bottom: 16px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+    /* 背景圆 */
+    .loader-brand-bg {
+      position: absolute;
+      inset: 0;
+      border-radius: 50%;
+      border: 1px solid rgba(255, 255, 255, 0.04);
+      background: rgba(255, 255, 255, 0.01);
+    }
+    /* 描边圆环 — 以笔画顺序绘制 */
+    .loader-brand-ring {
+      position: absolute;
+      inset: 3px;
+      border-radius: 50%;
+      border: 1.5px solid transparent;
+      border-left-color: rgba(22, 119, 255, 0.2);
+      border-right-color: rgba(245, 197, 24, 0.15);
+      animation: brandSpin 4s linear infinite;
+    }
+    @keyframes brandSpin { to { transform: rotate(360deg); } }
+    /* 内部微光 */
+    .loader-brand-glow {
+      position: absolute;
+      inset: 15px;
+      border-radius: 50%;
+      background: radial-gradient(circle, rgba(22, 119, 255, 0.04) 0%, transparent 70%);
+      animation: brandGlow 2s ease-in-out infinite;
+    }
+    @keyframes brandGlow {
+      0%, 100% { transform: scale(0.8); opacity: 0.3; }
+      50% { transform: scale(1.2); opacity: 0.7; }
+    }
+    /* Logo 文本 — 逐笔画出效果 */
+    .loader-brand-z {
+      font-size: 28px;
+      font-weight: 200;
+      font-family: "Georgia", "Times New Roman", serif;
+      color: #fff;
+      z-index: 1;
+      line-height: 1;
+      letter-spacing: 0;
+      opacity: 0;
+      animation: zReveal 1.2s ease-out 0.3s forwards;
+      text-shadow: 0 0 20px rgba(255, 255, 255, 0.05);
+    }
+    @keyframes zReveal {
+      0% { opacity: 0; clip-path: inset(0 100% 0 0); }
+      60% { opacity: 1; clip-path: inset(0 0% 0 0); }
+      100% { opacity: 1; clip-path: inset(0 0% 0 0); }
+    }
+
+    /* ===== 下方装饰线 ===== */
+    .loader-geo-bottom {
+      width: 100px;
+      height: 1px;
+      background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.06), transparent);
+      margin-bottom: 14px;
+      position: relative;
+      overflow: hidden;
+    }
+    .loader-geo-bottom::after {
+      content: "";
+      position: absolute;
+      left: -20px;
+      top: 0;
+      width: 30px;
+      height: 100%;
+      background: rgba(22, 119, 255, 0.2);
+      border-radius: 1px;
+      animation: dotTravel 2s ease-in-out infinite;
+    }
+    @keyframes dotTravel {
+      0% { left: -20px; }
+      100% { left: 130px; }
+    }
+
+    /* ===== 加载进度文字 ===== */
+    .loader-progress-text {
+      font-size: 9px;
+      font-weight: 300;
+      letter-spacing: 3px;
+      color: rgba(255, 255, 255, 0.12);
+      font-family: "Georgia", "Times New Roman", serif;
+      font-style: italic;
+    }
+    .loader-progress-text em {
+      font-style: italic;
+      animation: progressEllipsis 1.5s steps(4, end) infinite;
+    }
+    @keyframes progressEllipsis {
+      0% { opacity: 0.2; }
+      25% { opacity: 0.4; }
+      50% { opacity: 0.6; }
+      75% { opacity: 0.8; }
+      100% { opacity: 0.2; }
+    }
+
+    /* ===== 底部版权 ===== */
+    .loader-credit {
+      position: absolute;
+      bottom: 24px;
+      font-size: 7px;
+      color: rgba(255, 255, 255, 0.04);
+      letter-spacing: 4px;
+      font-weight: 200;
+      text-transform: uppercase;
+    }
+    /* ========== 首页 ========== */
+    .home-page {
+      min-height: 100vh;
+      background: linear-gradient(135deg, #1a1a2e 0%, #16213e 30%, #0f3460 60%, #1a1a2e 100%);
+      display: flex; flex-direction: column; align-items: center; justify-content: center;
+      padding: 24px;
+      position: relative;
+      overflow: hidden;
+    }
+    .home-page::before {
+      content: "";
+      position: absolute;
+      top: -30%;
+      right: -20%;
+      width: 400px;
+      height: 400px;
+      background: radial-gradient(circle, rgba(245, 197, 24, 0.08) 0%, transparent 70%);
+      border-radius: 50%;
+      animation: homeGlow 6s ease-in-out infinite;
+    }
+    .home-page::after {
+      content: "";
+      position: absolute;
+      bottom: -20%;
+      left: -10%;
+      width: 300px;
+      height: 300px;
+      background: radial-gradient(circle, rgba(22, 119, 255, 0.1) 0%, transparent 70%);
+      border-radius: 50%;
+      animation: homeGlow 8s ease-in-out infinite reverse;
+    }
+    @keyframes homeGlow {
+      0%, 100% { opacity: 0.6; }
+      50% { opacity: 1; }
+    }
+    /* 浮动粒子 */
+    .home-particle {
+      position: absolute;
+      width: 6px;
+      height: 6px;
+      border-radius: 50%;
+      background: rgba(255, 255, 255, 0.25);
+      pointer-events: none;
+      animation: particleFloat linear infinite;
+    }
+    @keyframes particleFloat {
+      0% { transform: translateY(0) translateX(0); opacity: 0; }
+      12% { opacity: 0.9; }
+      80% { opacity: 0.5; }
+      100% { transform: translateY(-120vh) translateX(100px); opacity: 0; }
+    }
+    .avatar-wrap {
+      width: 170px; height: 170px; border-radius: 50%;
+      padding: 4px;
+      background: linear-gradient(135deg, #1677ff, #f5c518, #1677ff);
+      background-size: 300% 300%;
+      animation: borderGlow 4s ease-in-out infinite;
+      box-shadow: 0 12px 35px rgba(0, 0, 0, 0.2), 0 0 40px rgba(22, 119, 255, 0.1);
+      margin-bottom: 32px;
+      position: relative;
+      transition: transform 0.5s cubic-bezier(0.2, 0.8, 0.2, 1), box-shadow 0.5s ease;
+    }
+    @keyframes borderGlow {
+      0%, 100% { background-position: 0% 50%; }
+      50% { background-position: 100% 50%; }
+    }
+    .avatar-wrap::before {
+      content: "";
+      position: absolute;
+      inset: 4px;
+      border-radius: 50%;
+      background: #1a1a2e;
+      z-index: 0;
+    }
+    .avatar-wrap::after {
+      content: "";
+      position: absolute;
+      inset: -8px;
+      border-radius: 50%;
+      border: 1px solid rgba(22, 119, 255, 0.08);
+      animation: ringPulse 3s ease-in-out infinite;
+    }
+    @keyframes ringPulse {
+      0%, 100% { transform: scale(1); opacity: 0.3; }
+      50% { transform: scale(1.08); opacity: 0.8; }
+    }
+    .avatar-wrap:active {
+      transform: scale(0.97);
+    }
+    .avatar-wrap img {
+      width: calc(100% - 8px); height: calc(100% - 8px);
+      object-fit: cover; display: block;
+      border-radius: 50%;
+      position: relative;
+      z-index: 1;
+      margin: 4px;
+    }
+    .main-title {
+      font-size: 36px; font-weight: 700;
+      background: linear-gradient(135deg, #e8e8e8 0%, #ffffff 50%, #c0c0c0 100%);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+      margin-bottom: 16px; letter-spacing: 2px;
+      position: relative;
+      z-index: 1;
+    }
+    .title-divider {
+      width: 120px;
+      height: 1px;
+      background: rgba(255, 255, 255, 0.2);
+      border-radius: 1px;
+      margin: 0 auto 16px;
+      position: relative;
+      z-index: 1;
+    }
+    .sub-text {
+      font-size: 15px; color: rgba(255, 255, 255, 0.7); margin-bottom: 48px;
+      position: relative;
+      z-index: 1;
+    }
+    .btn-group {
+      display: flex; flex-direction: column; gap: 16px; width: 100%; max-width: 420px;
+      position: relative;
+      z-index: 1;
+    }
+    .btn-row {
+      display: flex; gap: 20px; width: 100%;
+    }
+    .btn {
+      flex: 1; height: 52px; border-radius: 999px;
+      display: flex; align-items: center; justify-content: center; gap: 8px;
+      font-size: 16px; font-weight: 500; text-decoration: none;
+      box-shadow: 0 4px 14px rgba(0, 0, 0, 0.08);
+      transition: transform 0.3s cubic-bezier(0.2, 0.8, 0.2, 1), box-shadow 0.3s ease;
+      border: none; cursor: pointer; outline: none;
+      position: relative;
+      overflow: hidden;
+    }
+    .btn:active { transform: scale(0.96); }
+    .btn-blue:active { box-shadow: 0 2px 8px rgba(22, 119, 255, 0.2); }
+    .btn-blue { background: linear-gradient(135deg, #1677ff 0%, #4096ff 100%); color: #fff; }
+    .btn-white { background: #fff; color: #333; }
+    .btn svg { width: 18px; height: 18px; position: relative; z-index: 1; }
+    .btn-center {
+      flex: none;
+      width: calc(50% - 10px);
+      margin: 0 auto;
+    }
+    /* 按钮脉冲动画 */
+    .btn-pulse {
+      animation: btnPulse 2s ease-in-out infinite;
+    }
+    @keyframes btnPulse {
+      0%, 100% {
+        transform: scale(1);
+        box-shadow: 0 4px 14px rgba(22, 119, 255, 0.4);
+      }
+      50% {
+        transform: scale(1.05);
+        box-shadow: 0 8px 24px rgba(22, 119, 255, 0.6);
+      }
+    }
+    /* 入场动画 — 增强版 */
+    .fade-up {
+      opacity: 0; transform: translateY(28px);
+      animation: fadeUp 0.7s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+    }
+    .fade-up.delay-1 { animation-delay: 0.12s; }
+    .fade-up.delay-2 { animation-delay: 0.24s; }
+    .fade-up.delay-3 { animation-delay: 0.36s; }
+    @keyframes fadeUp {
+      0% { opacity: 0; transform: translateY(28px); }
+      100% { opacity: 1; transform: translateY(0); }
+    }
+    /* ========== 关于本站页 ========== */
+    .about-page {
+      min-height: 100vh; background: linear-gradient(135deg, #1a1a2e 0%, #16213e 30%, #0f3460 60%, #1a1a2e 100%);
+      display: flex; flex-direction: column;
+      position: relative;
+      overflow: hidden;
+    }
+    .about-page .about-particle {
+      position: absolute;
+      width: 3px;
+      height: 3px;
+      border-radius: 50%;
+      background: rgba(255, 255, 255, 0.08);
+      pointer-events: none;
+      animation: particleFloat linear infinite;
+    }
+    .back-btn {
+      position: sticky; top: 12px; z-index: 10;
+      margin-top: 12px;
+      padding: 6px 14px 6px 10px; display: inline-flex; align-items: center; gap: 6px;
+      color: #fff; font-size: 14px; font-weight: 500;
+      border: 1px solid rgba(255, 255, 255, 0.2); background: rgba(255, 255, 255, 0.1); backdrop-filter: blur(6px); -webkit-backdrop-filter: blur(6px); outline: none; cursor: pointer;
+      border-radius: 999px;
+      align-self: flex-start;
+      margin-left: 24px;
+    }
+    .back-btn svg { width: 16px; height: 16px; }
+    /* 官网页面返回按钮 — 商务风格 */
+    .official-page .back-btn {
+      background: rgba(22, 119, 255, 0.9);
+      border-color: rgba(22, 119, 255, 0.2);
+      color: #fff;
+      box-shadow: 
+        0 4px 16px rgba(22, 119, 255, 0.2),
+        inset 0 1px 0 rgba(255, 255, 255, 0.15);
+      backdrop-filter: blur(6px);
+      -webkit-backdrop-filter: blur(6px);
+      padding: 7px 16px 7px 12px;
+    }
+    .official-page .back-btn svg {
+      width: 18px;
+      height: 18px;
+    }
+    .official-page .back-btn:active {
+      transform: scale(0.96);
+      box-shadow: 0 2px 8px rgba(22, 119, 255, 0.15);
+    }
+    .about-content {
+      flex: 1; padding: 8px 24px 24px;
+      max-width: 480px; margin: 0 auto; width: 100%;
+    }
+    .about-text {
+      background: rgba(255, 255, 255, 0.08); backdrop-filter: blur(6px); -webkit-backdrop-filter: blur(6px); border: 1px solid rgba(255, 255, 255, 0.1); border-radius: 16px; padding: 24px 20px;
+      box-shadow: 0 1px 3px rgba(0, 0, 0, 0.04);
+      color: rgba(255, 255, 255, 0.8); font-size: 15px; line-height: 1.8;
+      margin-bottom: 32px;
+      transition: transform 0.3s ease, box-shadow 0.3s ease;
+    }
+
+    .about-text p { margin-bottom: 16px; }
+    .about-text p:last-child { margin-bottom: 0; }
+    .cards-grid { display: flex; flex-direction: column; gap: 12px; }
+    .cards-row { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+    .card {
+      background: rgba(255, 255, 255, 0.08); backdrop-filter: blur(6px); -webkit-backdrop-filter: blur(6px); border: 1px solid rgba(255, 255, 255, 0.1); border-radius: 16px; padding: 24px 20px;
+      box-shadow: 0 1px 3px rgba(0, 0, 0, 0.04);
+      transition: transform 0.3s cubic-bezier(0.2, 0.8, 0.2, 1), box-shadow 0.3s ease, border-color 0.3s ease;
+    }
+    .card:active {
+      transform: scale(0.98);
+    }
+    .card-value {
+      font-size: 28px; font-weight: 700; color: #fff;
+      margin-bottom: 4px;
+      background: linear-gradient(135deg, #fff, #60a5fa);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+    }
+    .card-label { font-size: 13px; color: rgba(255, 255, 255, 0.6); }
+    /* ========== 技术支持标签 — 透明渐变版 ========== */
+    .tech-support {
+      margin-top: 60px;
+      padding: 12px 20px;
+      background: rgba(22, 119, 255, 0.06);
+      border: 1px solid rgba(22, 119, 255, 0.08);
+      border-radius: 12px;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      box-shadow: 0 4px 20px rgba(22, 119, 255, 0.04);
+      max-width: fit-content;
+      margin-left: auto;
+      margin-right: auto;
+      cursor: pointer;
+      transition: all 0.3s ease;
+      position: relative;
+      overflow: hidden;
+      backdrop-filter: blur(6px);
+      -webkit-backdrop-filter: blur(6px);
+    }
+    .tech-support::before {
+      content: "";
+      position: absolute;
+      inset: 0;
+      background: linear-gradient(90deg, transparent, rgba(22, 119, 255, 0.04), transparent);
+      transform: translateX(-100%);
+      animation: techShine 3s ease-in-out infinite;
+    }
+    @keyframes techShine {
+      0% { transform: translateX(-100%); }
+      50% { transform: translateX(100%); }
+      100% { transform: translateX(100%); }
+    }
+    .tech-support:active {
+      transform: scale(0.97);
+    }
+    .tech-support.fade-up.delay-3 {
+      animation: 
+        fadeUp 0.7s cubic-bezier(0.16, 1, 0.3, 1) 0.3s forwards,
+        techPulse 2s ease-in-out 0.9s infinite;
+    }
+    @keyframes techPulse {
+      0%, 100% { border-color: rgba(22, 119, 255, 0.08); }
+      50% { border-color: rgba(22, 119, 255, 0.2); }
+    }
+    .card-progress {
+      width: 100%;
+      height: 6px;
+      background: rgba(255, 255, 255, 0.08);
+      border-radius: 3px;
+      margin-top: 12px;
+      overflow: hidden;
+    }
+    .card-progress-bar {
+      width: 90%;
+      height: 100%;
+      background: linear-gradient(90deg, #1677ff 0%, #4096ff 50%, #60a5fa 100%);
+      background-size: 200% 100%;
+      border-radius: 3px;
+      animation: progressShimmer 2s linear infinite;
+    }
+    @keyframes progressShimmer {
+      0% { background-position: 200% 0; }
+      100% { background-position: -200% 0; }
+    }
+    .tech-support-icon {
+      width: 20px;
+      height: 20px;
+      flex-shrink: 0;
+      color: #1677ff;
+    }
+    .tech-support-divider {
+      width: 1px;
+      height: 18px;
+      background: rgba(22, 119, 255, 0.15);
+      flex-shrink: 0;
+    }
+    .tech-support-text {
+      color: rgba(22, 119, 255, 0.7);
+      font-size: 12px;
+      font-weight: 600;
+      letter-spacing: 0.5px;
+    }
+    /* ========== 官网页面 — 质变版 ========== */
+    .official-page {
+      min-height: 100vh;
+      background: linear-gradient(160deg, #e8ecf1 0%, #f0f2f5 30%, #e4e8ee 60%, #eef0f3 100%);
+      display: flex; flex-direction: column;
+      position: relative;
+      padding-bottom: 80px;
+    }
+    /* 官网页面背景装饰 */
+    .official-page::before {
+      content: "";
+      position: fixed;
+      top: -50%;
+      left: -30%;
+      width: 600px;
+      height: 600px;
+      background: radial-gradient(circle, rgba(22, 119, 255, 0.03) 0%, transparent 70%);
+      border-radius: 50%;
+      pointer-events: none;
+      animation: bgDrift 12s ease-in-out infinite;
+    }
+    .official-page::after {
+      content: "";
+      position: fixed;
+      bottom: -30%;
+      right: -20%;
+      width: 400px;
+      height: 400px;
+      background: radial-gradient(circle, rgba(245, 197, 24, 0.02) 0%, transparent 70%);
+      border-radius: 50%;
+      pointer-events: none;
+      animation: bgDrift 15s ease-in-out infinite reverse;
+    }
+    @keyframes bgDrift {
+      0%, 100% { transform: translate(0, 0) scale(1); }
+      50% { transform: translate(30px, -20px) scale(1.1); }
+    }
+
+    /* 底部毛玻璃导航栏 — 立体奢华版 */
+    .nav-menu {
+      position: fixed;
+      bottom: 16px;
+      left: 0;
+      right: 0;
+      margin: 0 auto;
+      display: flex;
+      gap: 2px;
+      justify-content: center;
+      background: rgba(255, 255, 255, 0.60);
+      backdrop-filter: blur(25px) saturate(150%);
+      -webkit-backdrop-filter: blur(25px) saturate(150%);
+      border-radius: 999px;
+      padding: 4px 6px;
+      box-shadow: 
+        0 8px 40px rgba(0, 0, 0, 0.06),
+        0 2px 8px rgba(0, 0, 0, 0.02),
+        inset 0 1px 0 rgba(255, 255, 255, 0.6);
+      border: 1px solid rgba(255, 255, 255, 0.4);
+      z-index: 100;
+      width: fit-content;
+      max-width: calc(100% - 32px);
+    }
+    .nav-item {
+      padding: 6px 10px;
+      height: auto;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      gap: 1px;
+      font-size: 9px;
+      color: #7a7a9a;
+      transition: all 0.35s cubic-bezier(0.2, 0.8, 0.2, 1);
+      position: relative;
+      font-weight: 500;
+      border-radius: 12px;
+      white-space: nowrap;
+      min-width: 44px;
+      cursor: pointer;
+      letter-spacing: 0.2px;
+    }
+    .nav-item.active {
+      color: #fff;
+      font-weight: 600;
+      background: linear-gradient(135deg, #1677ff 0%, #3b8cff 100%);
+      box-shadow: 
+        0 4px 14px rgba(22, 119, 255, 0.30),
+        0 2px 4px rgba(22, 119, 255, 0.10),
+        inset 0 1px 0 rgba(255, 255, 255, 0.15);
+      transform: translateY(-1px);
+    }
+    /* 导航图标 — 镂空线条风 */
+    .nav-icon {
+      width: 22px;
+      height: 22px;
+      fill: none;
+      stroke: currentColor;
+      stroke-width: 1.5;
+      stroke-linecap: round;
+      stroke-linejoin: round;
+    }
+    /* Tab标题装饰系统 */
+    .tab-header-group {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      margin-bottom: 16px;
+    }
+    .tab-header-icon {
+      width: 40px;
+      height: 40px;
+      border-radius: 12px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      flex-shrink: 0;
+    }
+    .tab-header-icon.home-icon { background: linear-gradient(135deg, #1677ff, #60a5fa); }
+    .tab-header-icon.players-icon { background: linear-gradient(135deg, #f5c518, #ffb800); }
+    .tab-header-icon.reviews-icon { background: linear-gradient(135deg, #ff4d4f, #ff7875); }
+    .tab-header-icon.events-icon { background: linear-gradient(135deg, #52c41a, #73d13d); }
+    .tab-header-icon.more-icon { background: linear-gradient(135deg, #722ed1, #b37feb); }
+    .tab-header-icon svg {
+      width: 20px;
+      height: 20px;
+      color: #fff;
+    }
+    .tab-header-text {
+      flex: 1;
+    }
+    .tab-header-text .tab-label {
+      font-size: 11px;
+      color: #999;
+      font-weight: 500;
+      letter-spacing: 2px;
+      text-transform: uppercase;
+      margin-bottom: 2px;
+    }
+    .tab-header-text .tab-title {
+      font-size: 24px;
+      font-weight: 700;
+      color: #333;
+      margin: 0;
+    }
+    /* 内容区装饰标签 */
+    .section-tag {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      padding: 3px 12px;
+      border-radius: 999px;
+      font-size: 10px;
+      font-weight: 600;
+      letter-spacing: 0.5px;
+      margin-bottom: 12px;
+    }
+    .section-tag.blue-tag {
+      background: rgba(22, 119, 255, 0.08);
+      color: #1677ff;
+    }
+    .section-tag.gold-tag {
+      background: rgba(245, 197, 24, 0.1);
+      color: #b8860b;
+    }
+    .section-tag::before {
+      content: "";
+      width: 5px;
+      height: 5px;
+      border-radius: 50%;
+      background: currentColor;
+      animation: tagPulse 1.5s ease-in-out infinite;
+    }
+    @keyframes tagPulse {
+      0%, 100% { opacity: 0.3; }
+      50% { opacity: 1; }
+    }
+    .official-content {
+      flex: 1;
+      padding: 24px;
+      max-width: 600px;
+      margin: 0 auto;
+      width: 100%;
+    }
+    .tab-content {
+      display: none;
+    }
+    .tab-content.active {
+      display: block;
+    }
+    .tab-title {
+      font-size: 24px;
+      font-weight: 700;
+      color: #333;
+      margin-bottom: 16px;
+    }
+    .welcome-title {
+      font-size: 28px;
+      font-weight: 800;
+      background: linear-gradient(to right, #0a0a1a 0%, #1677ff 40%, #4096ff 70%, #0a0a1a 100%);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+      margin-bottom: 12px;
+      letter-spacing: 1px;
+    }
+    .tab-desc {
+      font-size: 15px;
+      color: #666;
+      line-height: 1.8;
+      margin-bottom: 24px;
+    }
+    .refresh-badge {
+      display: inline-block;
+      padding: 4px 12px;
+      background: linear-gradient(135deg, #d4f5d4 0%, #d4e8ff 100%);
+      border-radius: 6px;
+      font-size: 12px;
+      font-weight: 500;
+      color: #333;
+      margin-left: 6px;
+      vertical-align: middle;
+    }
+    .section-divider {
+      height: 1px;
+      background: linear-gradient(90deg, transparent, #e0e0e0, transparent);
+      margin: 24px 0;
+      position: relative;
+    }
+    /* 暗色背景下的分割线 */
+    .about-content .section-divider,
+    .home-page .section-divider {
+      background: linear-gradient(90deg, transparent, rgba(255,255,255,0.08), transparent);
+    }
+    /* 俱乐部信息卡片 — 奢华版 */
+    .club-info {
+      display: flex;
+      align-items: center;
+      gap: 18px;
+      margin-bottom: 24px;
+      background: linear-gradient(145deg, #ffffff 0%, #f8faff 100%);
+      border-radius: 20px;
+      padding: 22px;
+      box-shadow: 
+        0 12px 40px rgba(0, 0, 0, 0.06),
+        0 4px 12px rgba(0, 0, 0, 0.03),
+        0 1px 3px rgba(0, 0, 0, 0.02),
+        inset 0 1px 0 rgba(255, 255, 255, 0.9);
+      border: 1px solid rgba(22, 119, 255, 0.04);
+      position: relative;
+      overflow: hidden;
+    }
+    .club-info::before {
+      content: "";
+      position: absolute;
+      top: 0; left: 0; right: 0;
+      height: 2px;
+      background: linear-gradient(90deg, #1677ff, #60a5fa, #1677ff);
+      background-size: 200% 100%;
+      animation: clubBar 3s linear infinite;
+    }
+    @keyframes clubBar {
+      0% { background-position: 200% 0; }
+      100% { background-position: -200% 0; }
+    }
+    .club-info::after {
+      content: "✦";
+      position: absolute;
+      top: 8px; right: 14px;
+      font-size: 10px;
+      color: rgba(22, 119, 255, 0.08);
+      animation: clubStar 3s ease-in-out infinite;
+    }
+    @keyframes clubStar {
+      0%, 100% { opacity: 0.2; transform: rotate(0deg); }
+      50% { opacity: 0.6; transform: rotate(180deg); }
+    }
+    .club-info-avatar {
+      width: 68px;
+      height: 68px;
+      border-radius: 50%;
+      flex-shrink: 0;
+      border: 3px solid #fff;
+      box-shadow: 0 4px 16px rgba(0, 0, 0, 0.12);
+      object-fit: cover;
+    }
+    .club-info-text {
+      flex: 1;
+    }
+    .club-info-name {
+      font-size: 22px;
+      font-weight: 700;
+      color: #1a1a2e;
+      margin-bottom: 6px;
+    }
+    .club-info-desc {
+      font-size: 13px;
+      font-weight: 600;
+      background: linear-gradient(90deg, #1677ff 0%, #4096ff 100%);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+    }
+    /* 特色卡片大容器 — 奢华版 */
+    }
+    /* ========== 四大保障 — 灰色毛玻璃大卡片 ========== */
+    .features-container {
+      background: rgba(180, 185, 200, 0.08);
+      backdrop-filter: blur(12px);
+      -webkit-backdrop-filter: blur(12px);
+      border-radius: 22px;
+      padding: 30px 18px 26px;
+      margin-bottom: 8px;
+      box-shadow: 
+        0 20px 60px rgba(0, 0, 0, 0.15),
+        0 8px 24px rgba(0, 0, 0, 0.08),
+        0 2px 6px rgba(0, 0, 0, 0.04);
+      position: relative;
+      overflow: hidden;
+      border: 1px solid rgba(255, 255, 255, 0.04);
+    }
+    .features-container::before {
+      content: "";
+      position: absolute;
+      top: -30%;
+      left: 50%;
+      transform: translateX(-50%);
+      width: 400px;
+      height: 400px;
+      background: radial-gradient(circle, rgba(22, 119, 255, 0.06) 0%, transparent 70%);
+      border-radius: 50%;
+      animation: featPulse 5s ease-in-out infinite;
+    }
+    @keyframes featPulse {
+      0%, 100% { opacity: 0.2; transform: translateX(-50%) scale(1); }
+      50% { opacity: 0.5; transform: translateX(-50%) scale(1.15); }
+    }
+    .features-title {
+      font-size: 24px;
+      font-weight: 800;
+      text-align: center;
+      margin-bottom: 20px;
+      background: linear-gradient(135deg, #1a1a1a 0%, #f5c518 40%, #ffd700 60%, #1a1a1a 100%);
+      background-size: 200% 200%;
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+      letter-spacing: 3px;
+      position: relative;
+      z-index: 1;
+      animation: goldShimmer 3s ease-in-out infinite;
+    }
+    @keyframes goldShimmer {
+      0%, 100% { background-position: 0% 50%; }
+      50% { background-position: 100% 50%; }
+    }
+    .features-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 12px;
+      position: relative;
+      z-index: 1;
+    }
+    .feature-card {
+      background: linear-gradient(145deg, #0f1b33, #162040, #1a2744);
+      border-radius: 16px;
+      padding: 20px 16px;
+      box-shadow: 
+        0 12px 40px rgba(0, 0, 0, 0.3),
+        0 4px 12px rgba(0, 0, 0, 0.15),
+        inset 0 1px 0 rgba(255, 255, 255, 0.06);
+      transition: transform 0.3s cubic-bezier(0.2, 0.8, 0.2, 1);
+      position: relative;
+      overflow: hidden;
+      border: 1px solid rgba(255, 255, 255, 0.06);
+      text-align: center;
+      transform: translateY(0);
+    }
+    .feature-card::before {
+      content: "";
+      position: absolute;
+      top: 0; left: 0; right: 0;
+      height: 1px;
+      background: linear-gradient(90deg, transparent, rgba(255,255,255,0.08), transparent);
+    }
+    .feature-card:active {
+      transform: scale(0.96);
+    }
+    .feature-icon {
+      font-size: 32px;
+      margin-bottom: 10px;
+      display: block;
+    }
+    .feature-card h3 {
+      font-size: 16px;
+      font-weight: 700;
+      color: rgba(255, 255, 255, 0.95);
+      margin-bottom: 4px;
+      letter-spacing: 0.5px;
+    }
+    .feature-card p {
+      font-size: 12px;
+      color: rgba(255, 255, 255, 0.6);
+      line-height: 1.6;
+      font-weight: 400;
+    }
+    /* ========== 入驻泽璇 ========== */
+    .join-section {
+      background: linear-gradient(145deg, #0f1b33 0%, #162040 50%, #1a2744 100%);
+      border-radius: 22px;
+      padding: 28px 24px 24px;
+      margin: 28px 0 8px;
+      position: relative;
+      overflow: hidden;
+      border: 1px solid rgba(255, 255, 255, 0.03);
+      box-shadow: 
+        0 20px 60px rgba(15, 27, 51, 0.35),
+        0 8px 24px rgba(0, 0, 0, 0.12),
+        inset 0 1px 0 rgba(255, 255, 255, 0.03);
+    }
+    .join-section::before {
+      content: "";
+      position: absolute;
+      top: -60%;
+      right: -20%;
+      width: 250px;
+      height: 250px;
+      background: radial-gradient(circle, rgba(22, 119, 255, 0.06) 0%, transparent 70%);
+      border-radius: 50%;
+      animation: joinGlow 5s ease-in-out infinite;
+    }
+    .join-section::after {
+      content: "";
+      position: absolute;
+      bottom: -30%;
+      left: -15%;
+      width: 180px;
+      height: 180px;
+      background: radial-gradient(circle, rgba(245, 197, 24, 0.04) 0%, transparent 70%);
+      border-radius: 50%;
+      animation: joinGlow 7s ease-in-out infinite reverse;
+    }
+    @keyframes joinGlow {
+      0%, 100% { opacity: 0.3; transform: scale(1); }
+      50% { opacity: 0.7; transform: scale(1.2); }
+    }
+    .join-title {
+      font-size: 22px;
+      font-weight: 800;
+      text-align: center;
+      margin-bottom: 18px;
+      background: linear-gradient(135deg, #f5c518 0%, #ffffff 40%, #f5c518 100%);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+      letter-spacing: 2px;
+      position: relative;
+      z-index: 1;
+    }
+    .join-text {
+      font-size: 14px;
+      color: rgba(255, 255, 255, 0.7);
+      line-height: 1.9;
+      position: relative;
+      z-index: 1;
+      margin-bottom: 8px;
+    }
+    .join-text strong {
+      color: #f5c518;
+      font-weight: 700;
+    }
+    .join-divider {
+      height: 1px;
+      background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.06), transparent);
+      margin: 16px 0;
+      position: relative;
+      z-index: 1;
+    }
+    .join-subtitle {
+      font-size: 17px;
+      font-weight: 700;
+      color: rgba(255, 255, 255, 0.9);
+      margin: 16px 0 10px;
+      position: relative;
+      z-index: 1;
+    }
+    .join-btn-wrap {
+      text-align: center;
+      margin-top: 22px;
+      position: relative;
+      z-index: 1;
+    }
+    .join-btn {
+      display: inline-flex;
+      align-items: center;
+      gap: 10px;
+      padding: 14px 36px;
+      border-radius: 999px;
+      font-size: 17px;
+      font-weight: 700;
+      color: #fff;
+      text-decoration: none;
+      background: linear-gradient(135deg, #1677ff 0%, #4096ff 100%);
+      box-shadow: 
+        0 8px 28px rgba(22, 119, 255, 0.3),
+        0 2px 6px rgba(0, 0, 0, 0.1),
+        inset 0 1px 0 rgba(255, 255, 255, 0.15);
+      transition: transform 0.3s cubic-bezier(0.2, 0.8, 0.2, 1), box-shadow 0.3s ease;
+      animation: btnAttract 2s ease-in-out infinite;
+      letter-spacing: 1px;
+      position: relative;
+      overflow: hidden;
+    }
+    .join-btn::after {
+      content: "";
+      position: absolute;
+      inset: 0;
+      background: linear-gradient(90deg, transparent, rgba(255,255,255,0.1), transparent);
+      transform: translateX(-100%);
+      animation: btnShine 3s ease-in-out infinite;
+    }
+    .join-btn:active {
+      transform: scale(0.96);
+      box-shadow: 0 4px 12px rgba(22, 119, 255, 0.2);
+    }
+    @keyframes btnAttract {
+      0%, 100% { transform: scale(1); box-shadow: 0 8px 28px rgba(22, 119, 255, 0.3); }
+      50% { transform: scale(1.04); box-shadow: 0 12px 40px rgba(22, 119, 255, 0.5); }
+    }
+    @keyframes btnShine {
+      0% { transform: translateX(-100%); }
+      50% { transform: translateX(100%); }
+      100% { transform: translateX(100%); }
+    }
+    /* ========== 打手卡片 ========== */
+    .player-card {
+      background: linear-gradient(145deg, #fffef8 0%, #fffdf0 100%);
+      border-radius: 18px;
+      padding: 18px 22px;
+      margin-bottom: 14px;
+      box-shadow: 
+        0 8px 28px rgba(0, 0, 0, 0.08),
+        0 2px 6px rgba(0, 0, 0, 0.03),
+        inset 0 1px 0 rgba(255, 255, 255, 0.9);
+      display: flex;
+      align-items: center;
+      gap: 18px;
+      transition: transform 0.3s cubic-bezier(0.2, 0.8, 0.2, 1), box-shadow 0.3s ease;
+      border: 1px solid rgba(255, 215, 0, 0.12);
+      position: relative;
+    }
+    .player-card::before {
+      content: "";
+      position: absolute;
+      top: 0; left: 0; right: 0;
+      height: 1px;
+      background: linear-gradient(90deg, transparent, rgba(255, 215, 0, 0.2), transparent);
+    }
+    .player-card:active {
+      transform: scale(0.98);
+    }
+    .player-avatar {
+      width: 60px;
+      height: 60px;
+      flex-shrink: 0;
+      position: relative;
+    }
+    .player-avatar img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      display: block;
+      border-radius: 50%;
+      border: 3px solid #fff;
+      box-shadow: 0 4px 14px rgba(0, 0, 0, 0.15);
+      background: #f5f5f7;
+    }
+    /* 排名徽章 */
+    .rank-badge {
+      position: absolute;
+      bottom: -3px;
+      right: -3px;
+      width: 26px;
+      height: 26px;
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 13px;
+      font-weight: 800;
+      color: #fff;
+      border: 2.5px solid #fff;
+      box-shadow: 0 2px 8px rgba(0, 0, 0, 0.2);
+      z-index: 2;
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+      line-height: 1;
+    }
+    .rank-1 {
+      background: linear-gradient(135deg, #ffd700 0%, #ff9500 100%);
+      animation: rankPulse 1.5s ease-in-out infinite;
+      box-shadow: 0 2px 12px rgba(255, 183, 0, 0.5);
+    }
+    .rank-2 {
+      background: linear-gradient(135deg, #e8e8e8 0%, #a0a0a0 100%);
+      animation: rankPulse 1.5s ease-in-out 0.3s infinite;
+      box-shadow: 0 2px 10px rgba(192, 192, 192, 0.4);
+    }
+    .rank-3 {
+      background: linear-gradient(135deg, #e8a860 0%, #b87333 100%);
+      animation: rankPulse 1.5s ease-in-out 0.6s infinite;
+      box-shadow: 0 2px 10px rgba(205, 127, 50, 0.4);
+    }
+    @keyframes rankPulse {
+      0%, 100% { transform: scale(1); box-shadow: 0 2px 8px rgba(0,0,0,0.2); }
+      50% { transform: scale(1.15); box-shadow: 0 4px 20px rgba(255,215,0,0.5); }
+    }
+    .player-info {
+      flex: 1;
+    }
+    .player-name {
+      font-size: 17px;
+      font-weight: 600;
+      color: #1a1a2e;
+      margin-bottom: 2px;
+    }
+    .player-rate {
+      font-size: 13px;
+      color: #999;
+      font-weight: 500;
+      margin-bottom: 6px;
+    }
+    .rate-high { color: #52c41a; font-weight: 700; }
+    .rate-mid { color: #f5c518; font-weight: 700; }
+    .player-bar {
+      width: 100%;
+      height: 3px;
+      background: rgba(0,0,0,0.04);
+      border-radius: 2px;
+      overflow: hidden;
+    }
+    .player-bar-fill {
+      height: 100%;
+      border-radius: 2px;
+      background: linear-gradient(90deg, #1677ff, #60a5fa);
+      animation: barFillAnim 1.2s ease-out forwards;
+      transform-origin: left;
+    }
+    @keyframes barFillAnim {
+      0% { transform: scaleX(0); }
+      100% { transform: scaleX(1); }
+    }
+    /* 精选打手标题颜色 */
+    .players-title {
+      background: linear-gradient(135deg, #1677ff 0%, #666 100%);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+    }
+    /* ========== 评价卡片 — 全面升级 ========== */
+    /* 评价汇总条 */
+    .review-summary {
+      display: flex;
+      align-items: center;
+      gap: 16px;
+      background: linear-gradient(135deg, #fff5f5 0%, #fff0f0 100%);
+      border-radius: 16px;
+      padding: 16px 20px;
+      margin-bottom: 20px;
+      border: 1px solid rgba(255, 77, 79, 0.06);
+    }
+    .review-summary-score {
+      font-size: 36px;
+      font-weight: 800;
+      color: #ff4d4f;
+      line-height: 1;
+    }
+    .review-summary-info {
+      flex: 1;
+    }
+    .review-summary-stars {
+      font-size: 18px;
+      color: #ff4d4f;
+      letter-spacing: 4px;
+      margin-bottom: 4px;
+    }
+    .review-summary-label {
+      font-size: 12px;
+      color: #999;
+      font-weight: 500;
+    }
+    /* 评价卡片 */
+    .review-card {
+      background: #fff;
+      border-radius: 18px;
+      padding: 20px 22px;
+      margin-bottom: 14px;
+      box-shadow: 
+        0 6px 24px rgba(0, 0, 0, 0.04),
+        0 1px 3px rgba(0, 0, 0, 0.02);
+      transition: transform 0.3s cubic-bezier(0.2, 0.8, 0.2, 1), box-shadow 0.3s ease;
+      border-left: 4px solid #ff4d4f;
+      position: relative;
+    }
+    .review-card:nth-child(even) {
+      border-left-color: #1677ff;
+    }
+    .review-card:active {
+      transform: scale(0.98);
+    }
+    .review-header {
+      display: flex;
+      align-items: flex-start;
+      gap: 12px;
+      margin-bottom: 12px;
+    }
+    .review-avatar {
+      width: 44px;
+      height: 44px;
+      border-radius: 50%;
+      flex-shrink: 0;
+      border: 2px solid #fff;
+      box-shadow: 0 3px 12px rgba(0, 0, 0, 0.08);
+      background: linear-gradient(135deg, #ffe0e0, #ffd0d0);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      overflow: hidden;
+    }
+    .review-avatar:nth-child(even) {
+      background: linear-gradient(135deg, #e0ecff, #d0e0ff);
+    }
+    .review-avatar svg {
+      width: 24px;
+      height: 24px;
+      color: rgba(255, 77, 79, 0.3);
+    }
+    .review-user {
+      flex: 1;
+      padding-top: 4px;
+    }
+    .review-name {
+      font-size: 15px;
+      font-weight: 600;
+      color: #333;
+      margin-bottom: 8px;
+    }
+    .review-stars {
+      font-size: 16px;
+      color: #ff4d4f;
+      letter-spacing: 3px;
+      text-shadow: 0 1px 4px rgba(255, 77, 79, 0.2);
+      display: inline-block;
+    }
+    .review-stars .star-empty {
+      color: #e0e0e0;
+      -webkit-text-stroke: 1px #ccc;
+      text-stroke: 1px #ccc;
+    }
+    .review-content {
+      font-size: 14px;
+      color: #666;
+      line-height: 1.8;
+      margin-bottom: 16px;
+    }
+    .review-divider {
+      height: 1px;
+      background: #e0e0e0;
+    }
+    .review-end {
+      text-align: center;
+      font-size: 14px;
+      color: #999;
+      padding: 8px 0 16px;
+    }
+    .event-end {
+      text-align: center;
+      font-size: 14px;
+      color: #999;
+      padding: 16px 0 8px;
+    }
+    /* ========== 更新日志按钮 ========== */
+    .version-btn-container {
+      padding: 24px 0;
+    }
+    .version-btn {
+      width: 100%;
+      height: 60px;
+      border-radius: 18px;
+      background: linear-gradient(145deg, #1a2744 0%, #0d1524 100%);
+      color: #fff;
+      font-size: 17px;
+      font-weight: 600;
+      border: none;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 12px;
+      box-shadow: 
+        0 12px 32px rgba(0, 0, 0, 0.25),
+        0 4px 8px rgba(0, 0, 0, 0.12),
+        inset 0 1px 0 rgba(255, 255, 255, 0.06);
+      transition: all 0.3s cubic-bezier(0.2, 0.8, 0.2, 1);
+      position: relative;
+      overflow: hidden;
+      border: 1px solid rgba(255, 255, 255, 0.03);
+    }
+    .version-btn::before {
+      content: "";
+      position: absolute;
+      top: 0;
+      left: 0;
+      right: 0;
+      height: 50%;
+      background: linear-gradient(180deg, rgba(255, 255, 255, 0.08) 0%, transparent 100%);
+      border-radius: 16px 16px 0 0;
+    }
+    .version-btn:active {
+      transform: scale(0.97);
+      box-shadow: 
+        0 4px 12px rgba(0, 0, 0, 0.3),
+        0 2px 4px rgba(0, 0, 0, 0.2);
+    }
+    .version-btn svg {
+      width: 20px;
+      height: 20px;
+      z-index: 1;
+    }
+    .version-btn span {
+      z-index: 1;
+      letter-spacing: 1px;
+    }
+    /* ========== 版本日志页面 ========== */
+    .version-page {
+      min-height: 100vh; background: #fff;
+      display: flex; flex-direction: column;
+    }
+    .version-content {
+      flex: 1; padding: 8px 24px 24px;
+      max-width: 480px; margin: 0 auto; width: 100%;
+    }
+    .version-title {
+      font-size: 28px; font-weight: 700;
+      background: linear-gradient(135deg, #1677ff 0%, #1a1a1a 100%);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+      margin-bottom: 24px;
+      text-align: center;
+      letter-spacing: 1px;
+    }
+    .version-card {
+      background: linear-gradient(145deg, #ffffff 0%, #f8f9fb 100%);
+      border-radius: 18px;
+      padding: 20px;
+      box-shadow: 
+        0 8px 30px rgba(0, 0, 0, 0.04),
+        0 2px 6px rgba(0, 0, 0, 0.02),
+        inset 0 1px 0 rgba(255, 255, 255, 0.9);
+      border: 1px solid rgba(0, 0, 0, 0.02);
+      position: relative;
+      overflow: hidden;
+    }
+    .version-card::before {
+      content: "";
+      position: absolute;
+      top: 0; left: 0;
+      width: 4px;
+      height: 100%;
+      background: linear-gradient(180deg, #1677ff, #60a5fa);
+      border-radius: 0 2px 2px 0;
+      animation: versionBarPulse 2s ease-in-out infinite;
+    }
+    @keyframes versionBarPulse {
+      0%, 100% { opacity: 0.6; }
+      50% { opacity: 1; }
+    }
+    .version-item {
+      font-size: 15px; color: #444; font-weight: 500;
+      padding: 14px 0 14px 12px;
+      transition: all 0.3s ease;
+      cursor: default;
+      position: relative;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+    .version-item::before {
+      content: "";
+      width: 6px;
+      height: 6px;
+      border-radius: 50%;
+      background: #ddd;
+      flex-shrink: 0;
+      transition: all 0.3s ease;
+    }
+    .version-item:first-child {
+      color: #1677ff;
+      font-weight: 700;
+    }
+    .version-item:first-child::before {
+      background: #1677ff;
+      box-shadow: 0 0 8px rgba(22, 119, 255, 0.3);
+      animation: dotPulse 1.5s ease-in-out infinite;
+    }
+    @keyframes dotPulse {
+      0%, 100% { box-shadow: 0 0 8px rgba(22, 119, 255, 0.3); }
+      50% { box-shadow: 0 0 16px rgba(22, 119, 255, 0.6); }
+    }
+    .version-divider {
+      height: 1px;
+      background: linear-gradient(90deg, transparent, rgba(0,0,0,0.04), transparent);
+      margin-left: 18px;
+    }
+    /* 双按钮返回胶囊 */
+    .back-dual-btn {
+      position: sticky; top: 12px; z-index: 10;
+      margin-top: 12px;
+      display: inline-flex;
+      align-items: center;
+      border: 1px solid #e0e0e0;
+      background: rgba(255, 255, 255, 0.8);
+      backdrop-filter: blur(12px);
+      -webkit-backdrop-filter: blur(12px);
+      border-radius: 999px;
+      overflow: hidden;
+      align-self: flex-start;
+      margin-left: 24px;
+      box-shadow: 0 4px 16px rgba(0, 0, 0, 0.06);
+    }
+    .back-dual-btn button {
+      padding: 8px 14px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      background: none;
+      border: none;
+      outline: none;
+      cursor: pointer;
+      color: #1677ff;
+      transition: background 0.3s ease, transform 0.2s ease;
+    }
+    .back-dual-btn button:active {
+      background: rgba(22, 119, 255, 0.08);
+      transform: scale(0.95);
+    }
+    .back-dual-btn button svg {
+      width: 18px;
+      height: 18px;
+    }
+    .back-dual-divider {
+      width: 1px;
+      height: 20px;
+      background: #e0e0e0;
+      flex-shrink: 0;
+    }
+    /* ========== 活动页面样式 ========== */
+    .events-title {
+      font-size: 28px;
+      font-weight: 700;
+      background: linear-gradient(135deg, #1a1a1a 0%, #f5c518 50%, #1a1a1a 100%);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+      margin-bottom: 8px;
+    }
+    .events-subtitle {
+      font-size: 14px;
+      color: #999;
+      line-height: 1.6;
+      margin-bottom: 16px;
+    }
+    /* 活动标签 */
+    .event-badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 5px;
+      padding: 4px 14px;
+      border-radius: 999px;
+      font-size: 11px;
+      font-weight: 600;
+      letter-spacing: 0.5px;
+      margin-bottom: 14px;
+      animation: badgePulse 2s ease-in-out infinite;
+    }
+    .event-badge.hot {
+      background: linear-gradient(135deg, #ff4d4f, #ff7875);
+      color: #fff;
+    }
+    @keyframes badgePulse {
+      0%, 100% { transform: scale(1); }
+      50% { transform: scale(1.06); }
+    }
+    .event-card {
+      background: linear-gradient(145deg, #ffffff 0%, #f8f9fa 100%);
+      border-radius: 22px;
+      overflow: hidden;
+      box-shadow: 
+        0 10px 36px rgba(0, 0, 0, 0.06),
+        0 2px 6px rgba(0, 0, 0, 0.03),
+        inset 0 1px 0 rgba(255, 255, 255, 0.9);
+      transition: transform 0.3s cubic-bezier(0.2, 0.8, 0.2, 1), box-shadow 0.3s ease;
+      cursor: pointer;
+      margin-bottom: 16px;
+      border: 1px solid rgba(0,0,0,0.02);
+      position: relative;
+    }
+    .event-card::after {
+      content: "";
+      position: absolute;
+      bottom: 0; left: 0; right: 0;
+      height: 3px;
+      background: linear-gradient(90deg, #1677ff, #f5c518, #1677ff);
+      background-size: 200% 100%;
+      animation: barSweep 3s linear infinite;
+    }
+    @keyframes barSweep {
+      0% { background-position: 200% 0; }
+      100% { background-position: -200% 0; }
+    }
+    .event-card:active { transform: scale(0.98); }
+    .event-card-img {
+      width: 100%;
+      height: 180px;
+      object-fit: cover;
+      display: block;
+    }
+    .event-card-content {
+      padding: 18px 22px 22px;
+      position: relative;
+    }
+    .event-card-content::before {
+      content: "";
+      position: absolute;
+      top: 0; left: 22px; right: 22px;
+      height: 1px;
+      background: linear-gradient(90deg, transparent, rgba(22, 119, 255, 0.06), transparent);
+    }
+    .event-card-title {
+      font-size: 19px;
+      font-weight: 700;
+      color: #1a1a2e;
+      margin-bottom: 6px;
+      line-height: 1.4;
+    }
+    .event-card-desc {
+      font-size: 14px;
+      color: #666;
+      margin-bottom: 12px;
+      line-height: 1.5;
+    }
+    .event-card-action {
+      font-size: 13px;
+      color: #1677ff;
+      font-weight: 500;
+      display: flex;
+      align-items: center;
+      gap: 4px;
+    }
+    .event-card-action svg {
+      width: 14px;
+      height: 14px;
+    }
+    /* ========== 活动详情页面 ========== */
+    /* ========== 活动详情页面 — 质变版 ========== */
+    .event-detail-page {
+      min-height: 100vh;
+      background: linear-gradient(160deg, #eef2f7 0%, #f5f7fa 50%, #e8ecf3 100%);
+      display: flex;
+      flex-direction: column;
+    }
+    .event-detail-content {
+      flex: 1;
+      padding: 8px 24px 24px;
+      max-width: 520px;
+      margin: 0 auto;
+      width: 100%;
+    }
+    .event-detail-card {
+      background: linear-gradient(145deg, #ffffff 0%, #fafcff 100%);
+      border-radius: 24px;
+      padding: 28px 24px;
+      box-shadow: 
+        0 16px 48px rgba(22, 119, 255, 0.10),
+        0 4px 12px rgba(0, 0, 0, 0.03);
+      min-height: calc(100vh - 120px);
+      border: 1px solid rgba(255, 255, 255, 0.5);
+      position: relative;
+      overflow: hidden;
+    }
+    .event-detail-card::before {
+      content: "";
+      position: absolute;
+      top: 0; left: 0; right: 0;
+      height: 4px;
+      background: linear-gradient(90deg, #1677ff, #f5c518, #1677ff);
+      background-size: 200% 100%;
+      animation: barSweep 3s linear infinite;
+    }
+    .event-detail-img {
+      width: 100%;
+      border-radius: 18px;
+      display: block;
+      box-shadow: 
+        0 16px 48px rgba(0, 0, 0, 0.15),
+        0 8px 24px rgba(0, 0, 0, 0.06);
+      margin-bottom: 24px;
+    }
+    .event-detail-title {
+      font-size: 22px;
+      font-weight: 700;
+      color: #1a1a2e;
+      margin-bottom: 8px;
+      line-height: 1.4;
+    }
+    .event-detail-meta {
+      display: flex;
+      gap: 12px;
+      margin-bottom: 20px;
+      flex-wrap: wrap;
+    }
+    .event-detail-tag {
+      padding: 3px 12px;
+      border-radius: 999px;
+      font-size: 11px;
+      font-weight: 600;
+      background: rgba(22, 119, 255, 0.06);
+      color: #1677ff;
+      border: 1px solid rgba(22, 119, 255, 0.1);
+    }
+    .event-detail-tag.gold {
+      background: rgba(245, 197, 24, 0.08);
+      color: #b8860b;
+      border-color: rgba(245, 197, 24, 0.15);
+    }
+    .event-detail-text {
+      font-size: 14px;
+      color: #555;
+      line-height: 1.9;
+    }
+    .event-detail-text p {
+      margin-bottom: 12px;
+    }
+    .event-detail-text p:last-child {
+      margin-bottom: 0;
+      color: #999;
+      font-size: 13px;
+      padding-top: 16px;
+      border-top: 1px solid rgba(0,0,0,0.03);
+    }
+    /* 页面切换过渡 */
+    .page { display: none; opacity: 0; }
+    .page.active {
+      display: flex;
+      animation: pageIn 0.45s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+      will-change: opacity;
+    }
+    .home-page.page.active { display: flex; }
+    .about-page.page.active { display: flex; flex-direction: column; }
+    .official-page.page.active { display: flex; flex-direction: column; }
+    .version-page.page.active { display: flex; flex-direction: column; }
+    .event-detail-page.page.active { display: flex; flex-direction: column; }
+    @keyframes pageIn {
+      0% { opacity: 0; }
+      100% { opacity: 1; }
+    }
+  </style>
+</head>
+<body>
+  <!-- 加载动画（流光序幕 — 质变级全新设计） -->
+  <div class="loading-screen" id="loadingScreen">
+    <div class="loader-sweep"></div>
+    <div class="loader-stage">
+      <div class="loader-geo">
+        <div class="loader-geo-line"></div>
+        <div class="loader-geo-line"></div>
+        <div class="loader-geo-line"></div>
+        <div class="loader-geo-line"></div>
+      </div>
+      <div class="loader-brand">
+        <div class="loader-brand-bg"></div>
+        <div class="loader-brand-ring"></div>
+        <div class="loader-brand-glow"></div>
+        <div class="loader-brand-z">Z</div>
+      </div>
+      <div class="loader-geo-bottom"></div>
+      <div class="loader-progress-text">Loading<em>.</em><em>.</em><em>.</em></div>
+    </div>
+    <div class="loader-credit">Ze Xuan E-Sports</div>
+  </div>
+  <!-- 首页 -->
+  <div class="page home-page active" id="homePage">
+    <div class="home-particle" style="left:10%;top:80%;width:5px;height:5px;animation-duration:7s;animation-delay:0s;"></div>
+    <div class="home-particle" style="left:50%;top:85%;width:4px;height:4px;animation-duration:6s;animation-delay:2s;"></div>
+    <div class="home-particle" style="left:70%;top:95%;width:6px;height:6px;animation-duration:11s;animation-delay:0.5s;"></div>
+    <div class="home-particle" style="left:40%;top:70%;width:5px;height:5px;animation-duration:10s;animation-delay:1.5s;"></div>
+    <div class="home-particle" style="left:15%;top:60%;width:5px;height:5px;animation-duration:9s;animation-delay:4s;"></div>
+    <div class="home-particle" style="left:60%;top:50%;width:4px;height:4px;animation-duration:10s;animation-delay:2s;background:rgba(22,119,255,0.2);"></div>
+    <div class="home-particle" style="left:35%;top:30%;width:3px;height:3px;animation-duration:12s;animation-delay:3s;background:rgba(255,255,255,0.3);"></div>
+    <div class="avatar-wrap fade-up">
+      <img src="https://aka.doubaocdn.com/s/gFAj1wfHCn" alt="泽璇电竞" />
+    </div>
+    <h1 class="main-title fade-up delay-1">泽璇电竞</h1>
+    <div class="title-divider fade-up delay-1"></div>
+    <p class="sub-text fade-up delay-2">安全 专业 实惠</p>
+    <div class="btn-group fade-up delay-3">
+      <div class="btn-row">
+        <a href="https://qm.qq.com/q/cv4EK9ggcE" target="_blank" class="btn btn-blue">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/>
+            <circle cx="12" cy="7" r="4"/>
+          </svg>
+          当打手
+        </a>
+        <button class="btn btn-white" onclick="showAbout()">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <polyline points="16 18 22 12 16 6"/>
+            <polyline points="8 6 2 12 8 18"/>
+          </svg>
+          关于本站
+        </button>
+      </div>
+      <button class="btn btn-blue btn-center btn-pulse" id="enterOfficialBtn" onclick="showOfficial()">
+        进入官网
+      </button>
+    </div>
+  </div>
+  <!-- 关于本站页 -->
+  <div class="page about-page" id="aboutPage">
+    <div class="about-particle" style="left:5%;top:40%;width:2px;height:2px;animation-duration:9s;animation-delay:0s;"></div>
+    <div class="about-particle" style="left:90%;top:30%;width:3px;height:3px;animation-duration:11s;animation-delay:2s;"></div>
+    <div class="about-particle" style="left:30%;top:70%;width:2px;height:2px;animation-duration:8s;animation-delay:1s;"></div>
+    <div class="about-particle" style="left:70%;top:80%;width:2px;height:2px;animation-duration:10s;animation-delay:3s;"></div>
+    <button class="back-btn fade-up" onclick="showHome()">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+        <polyline points="15 18 8 12 15 6"/>
+      </svg>
+      返回
+    </button>
+    <div class="about-content">
+      <div class="about-text fade-up delay-1">
+        <p>本站由：<br/>俱乐部副董事长独立开发部署<br/>为泽璇电竞而打造</p>
+        <p>反馈请联系QQ：2361932981<br/>邮箱：19135271540@163.com</p>
+        <p>开发技术：PHP + HTML + CSS + JS</p>
+      </div>
+      <div class="section-divider fade-up delay-2"></div>
+      <div class="cards-grid fade-up delay-2">
+        <div class="cards-row">
+          <div class="card">
+            <div class="card-value">500G</div>
+            <div class="card-label">DDoS防御</div>
+            <div class="card-progress"><div class="card-progress-bar"></div></div>
+          </div>
+          <div class="card">
+            <div class="card-value">80万</div>
+            <div class="card-label">CC防护</div>
+            <div class="card-progress"><div class="card-progress-bar"></div></div>
+          </div>
+        </div>
+        <div class="card">
+          <div class="card-value">JavaScript</div>
+          <div class="card-label">交互逻辑</div>
+        </div>
+      </div>
+      <!-- 技术支持标签 -->
+      <div class="tech-support fade-up delay-3" onclick="showVersion('about')">
+        <svg class="tech-support-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"/>
+        </svg>
+        <div class="tech-support-divider"></div>
+        <span class="tech-support-text">泽璇电竞授权官网v1.0.4</span>
+      </div>
+    </div>
+  </div>
+  <!-- 官网页面 -->
+  <div class="page official-page" id="officialPage">
+    <button class="back-btn fade-up" onclick="showHome()">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+        <polyline points="15 18 8 12 15 6"/>
+      </svg>
+      返回
+    </button>
+    <div class="official-content">
+      <!-- 首页标签 -->
+      <div class="tab-content active" id="tab-home">
+        <div class="tab-header-group fade-up">
+          <div class="tab-header-icon home-icon">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/>
+              <polyline points="9 22 9 12 15 12 15 22"/>
+            </svg>
+          </div>
+          <div class="tab-header-text">
+            <div class="tab-label">Home</div>
+            <h2 class="tab-title">欢迎来到泽璇电竞</h2>
+          </div>
+        </div>
+        <p class="tab-desc fade-up delay-1">专业的暗区突围俱乐部，为您提供最优质的游戏体验。拥有实力不俗的高质量打手，服务与态度一流，只为让您的游戏之旅更加畅快。</p>
+        <div class="section-divider fade-up delay-2"></div>
+        <div class="club-info fade-up delay-2">
+          <img class="club-info-avatar" src="https://aka.doubaocdn.com/s/gFAj1wfHCn" alt="泽璇电竞" />
+          <div class="club-info-text">
+            <div class="club-info-name">泽璇电竞</div>
+            <div class="club-info-desc">至今已成立：1年+</div>
+          </div>
+        </div>
+        <div class="section-tag gold-tag fade-up delay-2">四大保障</div>
+        <div class="features-container fade-up delay-2">
+          <div class="features-title">我们的四大保障</div>
+          <div class="features-grid">
+            <div class="feature-card">
+              <span class="feature-icon">💬</span>
+              <h3>客服</h3>
+              <p>24小时企业微信客服快速响应，保障您的售后无忧</p>
+            </div>
+            <div class="feature-card">
+              <span class="feature-icon">💰</span>
+              <h3>退款</h3>
+              <p>10分钟无人接单，可极速退款！无需担心您的钱款有去无回</p>
+            </div>
+            <div class="feature-card">
+              <span class="feature-icon">📋</span>
+              <h3>真实</h3>
+              <p>所见所得、杜绝文字游戏！让您消费得明明白白</p>
+            </div>
+            <div class="feature-card">
+              <span class="feature-icon">🛡️</span>
+              <h3>安全</h3>
+              <p>全程平台担保交易，下单安全有保障，从根上解决您的顾虑</p>
+            </div>
+          </div>
+        </div>
+        <!-- 入驻泽璇电竞 -->
+        <div class="join-section fade-up delay-2">
+          <div class="join-title">入驻泽璇电竞</div>
+          <div class="join-text">
+            在考核通过后，你所对应的考核官会进行简单教学从而让你入驻小程序。在成功入驻小程序后，可在打手群公告获取详细教程文件，包含：<strong>接单、结单、结算</strong> 等重要操作指导。
+          </div>
+          <div class="join-divider"></div>
+          <div class="join-subtitle">🎁 俱乐部待遇</div>
+          <div class="join-text">
+            各种节日奖金、接单奖金、年终奖 等等福利拉满！抽成低、单子好抢，在数百家俱乐部中 我们的待遇未必真比大型俱乐部差哦～
+          </div>
+          <div class="join-text" style="margin-top:8px;">还在等什么，抓紧点击下方「我要入驻」进群了解吧！</div>
+          <div class="join-btn-wrap">
+            <a href="https://qm.qq.com/q/eOc0IjBw88" target="_blank" class="join-btn">
+              我要入驻
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" style="width:18px;height:18px;">
+                <path d="M5 12h13M12 5l7 7-7 7"/>
+              </svg>
+            </a>
+          </div>
+        </div>
+        <div class="official-footer fade-up delay-3" style="text-align: center; margin-top: 40px; padding: 16px 0; color: #bbb; font-size: 12px; letter-spacing: 3px; border-top: 1px solid rgba(0,0,0,0.03);">— 感谢您的信任 —</div>
+      </div>
+      <!-- 精选打手标签 -->
+      <div class="tab-content" id="tab-players">
+        <div class="tab-header-group fade-up">
+          <div class="tab-header-icon players-icon">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/>
+              <circle cx="12" cy="7" r="4"/>
+            </svg>
+          </div>
+          <div class="tab-header-text">
+            <div class="tab-label">Players</div>
+            <h2 class="tab-title">前10精选打手</h2>
+          </div>
+        </div>
+        <p class="tab-desc fade-up delay-1">下面10位打手，都是俱乐部中实力不凡 好评如潮的顶级选手</p>
+        <div class="section-divider fade-up delay-2"></div>
+        <div class="section-tag gold-tag fade-up delay-2">排行榜</div>
+        <div class="player-card fade-up" style="animation-delay: 0.3s;">
+          <div class="player-avatar">
+            <img src="https://aka.doubaocdn.com/s/utEu1wfDKD" alt="泽璇.旋律" />
+            <div class="rank-badge rank-1">1</div>
+          </div>
+          <div class="player-info">
+            <div class="player-name">泽璇.旋律</div>
+            <div class="player-rate">好评率 <span class="rate-high">≈100%</span></div>
+            <div class="player-bar"><div class="player-bar-fill" style="width:100%"></div></div>
+          </div>
+        </div>
+        <div class="player-card fade-up" style="animation-delay: 0.35s;">
+          <div class="player-avatar">
+            <img src="https://aka.doubaocdn.com/s/CZMb1wfDKD" alt="泽璇.一海" />
+            <div class="rank-badge rank-2">2</div>
+          </div>
+          <div class="player-info">
+            <div class="player-name">泽璇.一海</div>
+            <div class="player-rate">好评率 <span class="rate-high">≈100%</span></div>
+            <div class="player-bar"><div class="player-bar-fill" style="width:100%"></div></div>
+          </div>
+        </div>
+        <div class="player-card fade-up" style="animation-delay: 0.4s;">
+          <div class="player-avatar">
+            <img src="https://aka.doubaocdn.com/s/JzTb1wfDKD" alt="泽璇.米老鼠" />
+            <div class="rank-badge rank-3">3</div>
+          </div>
+          <div class="player-info">
+            <div class="player-name">泽璇.米老鼠</div>
+            <div class="player-rate">好评率 <span class="rate-high">≈100%</span></div>
+            <div class="player-bar"><div class="player-bar-fill" style="width:100%"></div></div>
+          </div>
+        </div>
+        <div class="player-card fade-up" style="animation-delay: 0.45s;">
+          <div class="player-avatar">
+            <img src="https://aka.doubaocdn.com/s/hCZK1wfDKD" alt="泽璇.老六" />
+          </div>
+          <div class="player-info">
+            <div class="player-name">泽璇.老六</div>
+            <div class="player-rate">好评率 <span class="rate-high">≈100%</span></div>
+            <div class="player-bar"><div class="player-bar-fill" style="width:100%"></div></div>
+          </div>
+        </div>
+        <div class="player-card fade-up" style="animation-delay: 0.5s;">
+          <div class="player-avatar">
+            <img src="https://aka.doubaocdn.com/s/fk2F1wfDKD" alt="泽璇.看海" />
+          </div>
+          <div class="player-info">
+            <div class="player-name">泽璇.看海</div>
+            <div class="player-rate">好评率 <span class="rate-high">≈100%</span></div>
+            <div class="player-bar"><div class="player-bar-fill" style="width:100%"></div></div>
+          </div>
+        </div>
+        <div class="player-card fade-up" style="animation-delay: 0.55s;">
+          <div class="player-avatar">
+            <img src="https://aka.doubaocdn.com/s/GIUY1wfDKD" alt="泽璇.芙芙" />
+          </div>
+          <div class="player-info">
+            <div class="player-name">泽璇.芙芙</div>
+            <div class="player-rate">好评率 <span class="rate-high">≈100%</span></div>
+            <div class="player-bar"><div class="player-bar-fill" style="width:100%"></div></div>
+          </div>
+        </div>
+        <div class="player-card fade-up" style="animation-delay: 0.6s;">
+          <div class="player-avatar">
+            <img src="https://aka.doubaocdn.com/s/tbVA1wfDKD" alt="泽璇.残月" />
+          </div>
+          <div class="player-info">
+            <div class="player-name">泽璇.残月</div>
+            <div class="player-rate">好评率 <span class="rate-mid">≈99%</span></div>
+            <div class="player-bar"><div class="player-bar-fill" style="width:99%"></div></div>
+          </div>
+        </div>
+        <div class="player-card fade-up" style="animation-delay: 0.65s;">
+          <div class="player-avatar">
+            <img src="https://aka.doubaocdn.com/s/o50V1wfDKD" alt="泽璇.硬盘" />
+          </div>
+          <div class="player-info">
+            <div class="player-name">泽璇.硬盘</div>
+            <div class="player-rate">好评率 <span class="rate-high">≈100%</span></div>
+            <div class="player-bar"><div class="player-bar-fill" style="width:100%"></div></div>
+          </div>
+        </div>
+        <div class="player-card fade-up" style="animation-delay: 0.7s;">
+          <div class="player-avatar">
+            <img src="https://aka.doubaocdn.com/s/JK8m1wfGqZ" alt="泽璇.曼珠沙华" />
+          </div>
+          <div class="player-info">
+            <div class="player-name">泽璇.曼珠沙华</div>
+            <div class="player-rate">好评率 <span class="rate-high">≈100%</span></div>
+            <div class="player-bar"><div class="player-bar-fill" style="width:100%"></div></div>
+          </div>
+        </div>
+        <div class="player-card fade-up" style="animation-delay: 0.75s;">
+          <div class="player-avatar">
+            <img src="https://aka.doubaocdn.com/s/HtU71wfDKD" alt="泽璇.白色" />
+          </div>
+          <div class="player-info">
+            <div class="player-name">泽璇.白色</div>
+            <div class="player-rate">好评率 <span class="rate-mid">≈99%</span></div>
+            <div class="player-bar"><div class="player-bar-fill" style="width:99%"></div></div>
+          </div>
+        </div>
+        <div class="event-end fade-up" style="animation-delay: 0.8s;">仅显示上榜打手</div>
+      </div>
+      <!-- 老板评价标签 -->
+      <div class="tab-content" id="tab-reviews">
+        <div class="tab-header-group fade-up">
+          <div class="tab-header-icon reviews-icon">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"/>
+              <path d="M13.73 21a2 2 0 0 1-3.46 0"/>
+            </svg>
+          </div>
+          <div class="tab-header-text">
+            <div class="tab-label">Reviews</div>
+            <h2 class="tab-title">真实评价-做真实的自己</h2>
+          </div>
+        </div>
+        <p class="tab-desc fade-up delay-1">参考10条他人的评价，做出最明智的决定 <span class="refresh-badge">随机刷新</span></p>
+        <div class="section-divider fade-up delay-2"></div>
+        <div class="review-summary fade-up delay-2">
+          <div class="review-summary-score">4.8</div>
+          <div class="review-summary-info">
+            <div class="review-summary-stars">★★★★★</div>
+            <div class="review-summary-label">综合评分 · 仅展示10条评价</div>
+          </div>
+        </div>
+        <div class="review-card fade-up" style="animation-delay: 0.3s;">
+          <div class="review-header">
+            <div class="review-avatar">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/>
+                <circle cx="12" cy="7" r="4"/>
+              </svg>
+            </div>
+            <div class="review-user">
+              <div class="review-name">*****</div>
+              <div class="review-stars">★★★★★</div>
+            </div>
+          </div>
+          <div class="review-content">效率挺高的</div>
+          <div class="review-divider"></div>
+        </div>
+        <div class="review-card fade-up" style="animation-delay: 0.35s;">
+          <div class="review-header">
+            <div class="review-avatar">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/>
+                <circle cx="12" cy="7" r="4"/>
+              </svg>
+            </div>
+            <div class="review-user">
+              <div class="review-name">*****</div>
+              <div class="review-stars">★★★★★</div>
+            </div>
+          </div>
+          <div class="review-content">可以</div>
+          <div class="review-divider"></div>
+        </div>
+        <div class="review-card fade-up" style="animation-delay: 0.4s;">
+          <div class="review-header">
+            <div class="review-avatar">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/>
+                <circle cx="12" cy="7" r="4"/>
+              </svg>
+            </div>
+            <div class="review-user">
+              <div class="review-name">*****</div>
+              <div class="review-stars">★★★★★</div>
+            </div>
+          </div>
+          <div class="review-content">挺好</div>
+          <div class="review-divider"></div>
+        </div>
+        <div class="review-card fade-up" style="animation-delay: 0.45s;">
+          <div class="review-header">
+            <div class="review-avatar">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/>
+                <circle cx="12" cy="7" r="4"/>
+              </svg>
+            </div>
+            <div class="review-user">
+              <div class="review-name">*****</div>
+              <div class="review-stars">★★★★★</div>
+            </div>
+          </div>
+          <div class="review-content">好评</div>
+          <div class="review-divider"></div>
+        </div>
+        <div class="review-card fade-up" style="animation-delay: 0.5s;">
+          <div class="review-header">
+            <div class="review-avatar">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/>
+                <circle cx="12" cy="7" r="4"/>
+              </svg>
+            </div>
+            <div class="review-user">
+              <div class="review-name">*****</div>
+              <div class="review-stars">★★★★★</div>
+            </div>
+          </div>
+          <div class="review-content">不卡保底</div>
+          <div class="review-divider"></div>
+        </div>
+        <div class="review-card fade-up" style="animation-delay: 0.55s;">
+          <div class="review-header">
+            <div class="review-avatar">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/>
+                <circle cx="12" cy="7" r="4"/>
+              </svg>
+            </div>
+            <div class="review-user">
+              <div class="review-name">*****</div>
+              <div class="review-stars">★★★★★</div>
+            </div>
+          </div>
+          <div class="review-content">很稳</div>
+          <div class="review-divider"></div>
+        </div>
+        <div class="review-card fade-up" style="animation-delay: 0.6s;">
+          <div class="review-header">
+            <div class="review-avatar">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/>
+                <circle cx="12" cy="7" r="4"/>
+              </svg>
+            </div>
+            <div class="review-user">
+              <div class="review-name">*****</div>
+              <div class="review-stars">★★★★★</div>
+            </div>
+          </div>
+          <div class="review-content">代起的装备非常全，一个投掷物都不少，牛逼</div>
+          <div class="review-divider"></div>
+        </div>
+        <div class="review-card fade-up" style="animation-delay: 0.65s;">
+          <div class="review-header">
+            <div class="review-avatar">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/>
+                <circle cx="12" cy="7" r="4"/>
+              </svg>
+            </div>
+            <div class="review-user">
+              <div class="review-name">*****</div>
+              <div class="review-stars">★★★★<span class="star-empty">★</span></div>
+            </div>
+          </div>
+          <div class="review-content">接单不是非常快</div>
+          <div class="review-divider"></div>
+        </div>
+        <div class="review-card fade-up" style="animation-delay: 0.7s;">
+          <div class="review-header">
+            <div class="review-avatar">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/>
+                <circle cx="12" cy="7" r="4"/>
+              </svg>
+            </div>
+            <div class="review-user">
+              <div class="review-name">*****</div>
+              <div class="review-stars">★★★★★</div>
+            </div>
+          </div>
+          <div class="review-content">打手互动性强，我问啥都会回答</div>
+          <div class="review-divider"></div>
+        </div>
+        <div class="review-card fade-up" style="animation-delay: 0.75s;">
+          <div class="review-header">
+            <div class="review-avatar">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/>
+                <circle cx="12" cy="7" r="4"/>
+              </svg>
+            </div>
+            <div class="review-user">
+              <div class="review-name">*****</div>
+              <div class="review-stars">★★★★★</div>
+            </div>
+          </div>
+          <div class="review-content">下次还来</div>
+          <div class="review-divider"></div>
+        </div>
+      </div>
+      <!-- 最新活动标签 -->
+      <div class="tab-content" id="tab-events">
+        <div class="tab-header-group fade-up">
+          <div class="tab-header-icon events-icon">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <path d="M8.5 14.5A2.5 2.5 0 0 0 11 12c0-1.38-.5-2-1-3-1.072-2.143-.224-4.054 2-6 .5 2.5 2 4.9 4 6.5 2 1.6 3 3.5 3 5.5a7 7 0 1 1-14 0c0-1.153.433-2.294 1-3a2.5 2.5 0 0 0 2.5 2.5z"/>
+            </svg>
+          </div>
+          <div class="tab-header-text">
+            <div class="tab-label">Events</div>
+            <h2 class="tab-title">关注最新活动</h2>
+          </div>
+        </div>
+        <p class="events-subtitle fade-up delay-1">提前了解新内容，真正的信息差，就在这里！</p>
+        <div class="section-divider fade-up delay-2"></div>
+        <div class="event-badge hot fade-up delay-2">🔥 火热进行中</div>
+        <div class="event-card fade-up delay-2" onclick="showEventDetail()">
+          <img class="event-card-img" src="https://aka.doubaocdn.com/s/95px1wf9Jx" alt="泽璇电竞周年庆" />
+          <div class="event-card-content">
+            <div class="event-card-title">泽璇电竞周年庆</div>
+            <div class="event-card-desc">超优惠、超多样 震撼来袭！</div>
+            <div class="event-card-action">
+              点击查看详情
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <polyline points="9 18 15 12 9 6"></polyline>
+              </svg>
+            </div>
+          </div>
+        </div>
+        <div class="event-end fade-up" style="animation-delay: 0.4s;">— 暂无更多活动规划 —</div>
+      </div>
+      <!-- 关于入驻标签 -->
+      <div class="tab-content" id="tab-about-join">
+        <div class="tab-header-group fade-up">
+          <div class="tab-header-icon more-icon">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <rect x="3" y="3" width="7" height="7"/>
+              <rect x="14" y="3" width="7" height="7"/>
+              <rect x="14" y="14" width="7" height="7"/>
+              <rect x="3" y="14" width="7" height="7"/>
+            </svg>
+          </div>
+          <div class="tab-header-text">
+            <div class="tab-label">More</div>
+            <h2 class="tab-title">更多</h2>
+          </div>
+        </div>
+        <div class="version-btn-container fade-up" style="animation-delay: 0.3s;">
+          <button class="version-btn" onclick="showVersion('more')">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/>
+              <polyline points="14 2 14 8 20 8"/>
+              <line x1="16" y1="13" x2="8" y2="13"/>
+              <line x1="16" y1="17" x2="8" y2="17"/>
+              <polyline points="10 9 9 9 8 9"/>
+            </svg>
+            <span>更新日志</span>
+          </button>
+        </div>
+        <div class="event-end fade-up" style="animation-delay: 0.35s;">一 持续更新中 一</div>
+      </div>
+    </div>
+    <!-- 底部毛玻璃导航栏 -->
+    <div class="nav-menu fade-up">
+      <div class="nav-item active" onclick="switchTab('home')">
+        <svg class="nav-icon" viewBox="0 0 24 24">
+          <path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/>
+          <polyline points="9 22 9 12 15 12 15 22"/>
+        </svg>
+        <span>首页</span>
+      </div>
+      <div class="nav-item" onclick="switchTab('players')">
+        <svg class="nav-icon" viewBox="0 0 24 24">
+          <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/>
+          <circle cx="12" cy="7" r="4"/>
+        </svg>
+        <span>打手</span>
+      </div>
+      <div class="nav-item" onclick="switchTab('reviews')">
+        <svg class="nav-icon" viewBox="0 0 24 24">
+          <path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"/>
+          <path d="M13.73 21a2 2 0 0 1-3.46 0"/>
+        </svg>
+        <span>评价</span>
+      </div>
+      <div class="nav-item" onclick="switchTab('events')">
+        <svg class="nav-icon" viewBox="0 0 24 24">
+          <path d="M8.5 14.5A2.5 2.5 0 0 0 11 12c0-1.38-.5-2-1-3-1.072-2.143-.224-4.054 2-6 .5 2.5 2 4.9 4 6.5 2 1.6 3 3.5 3 5.5a7 7 0 1 1-14 0c0-1.153.433-2.294 1-3a2.5 2.5 0 0 0 2.5 2.5z"/>
+        </svg>
+        <span>活动</span>
+      </div>
+      <div class="nav-item" onclick="switchTab('about-join')">
+        <svg class="nav-icon" viewBox="0 0 24 24">
+          <rect x="3" y="3" width="7" height="7"/>
+          <rect x="14" y="3" width="7" height="7"/>
+          <rect x="14" y="14" width="7" height="7"/>
+          <rect x="3" y="14" width="7" height="7"/>
+        </svg>
+        <span>更多</span>
+      </div>
+    </div>
+  </div>
+  <!-- 版本日志页面 -->
+  <div class="page version-page" id="versionPage">
+    <div class="back-dual-btn fade-up">
+      <button onclick="backFromVersion()">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <polyline points="15 18 8 12 15 6"/>
+        </svg>
+      </button>
+      <div class="back-dual-divider"></div>
+      <button onclick="showHome()">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/>
+          <polyline points="9 22 9 12 15 12 15 22"/>
+        </svg>
+      </button>
+    </div>
+    <div class="version-content">
+      <h2 class="version-title fade-up delay-1">历代版本-更新日志</h2>
+      <div class="version-card fade-up delay-2">
+        <div class="version-item">正式版（v1.0.4）  更新26.6.28</div>
+        <div class="version-divider"></div>
+        <div class="version-item">正式版（v1.0.3）  更新26.6.26</div>
+        <div class="version-divider"></div>
+        <div class="version-item">正式版（v1.0.2）  更新26.6.26</div>
+        <div class="version-divider"></div>
+        <div class="version-item">测试版（v1.0.1）  更新26.6.24</div>
+        <div class="version-divider"></div>
+        <div class="version-item">测试版（v1.0.0）  更新26.6.24</div>
+      </div>
+    </div>
+  </div>
+  <!-- 活动详情页面 -->
+  <div class="page event-detail-page" id="eventDetailPage">
+    <div class="back-dual-btn fade-up">
+      <button onclick="backToEvents()">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <polyline points="15 18 8 12 15 6"></polyline>
+        </svg>
+      </button>
+      <div class="back-dual-divider"></div>
+      <button onclick="showHome()">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"></path>
+          <polyline points="9 22 9 12 15 12 15 22"></polyline>
+        </svg>
+      </button>
+    </div>
+    <div class="event-detail-content">
+      <div class="event-detail-card fade-up delay-1">
+        <img class="event-detail-img" src="https://aka.doubaocdn.com/s/95px1wf9Jx" alt="泽璇电竞1周年" />
+        <div class="event-detail-title">泽璇电竞周年庆</div>
+        <div class="event-detail-meta">
+          <span class="event-detail-tag">🎉 周年活动</span>
+          <span class="event-detail-tag gold">⏰ 限时福利</span>
+        </div>
+        <div class="event-detail-text">
+          <p>泽璇电竞1周年活动，为了感谢各位老板这一年的支持，无论是老顾客还是新人，能在鱼龙混杂的俱乐部中选择我们 是我们最大的荣幸。目标计划推出某种限时一周的超级福利，以回馈各位的倾力支持</p>
+          <p>预计于8月左右实施</p>
+        </div>
+      </div>
+    </div>
+  </div>
+  <script>
+    // 记录版本日志的来源页面
+    var versionFrom = 'about'; // 默认从关于本站进入
+    // 隐藏加载动画
+    window.addEventListener('load', function() {
+      setTimeout(function() {
+        var loading = document.getElementById('loadingScreen');
+        loading.classList.add('hide');
+        setTimeout(function() { loading.style.display = 'none'; }, 500);
+      }, 2200);
+    });
+    // 重新触发入场动画
+    function replayAnimation(elements) {
+      elements.forEach(function(el) {
+        el.style.animation = 'none';
+        el.offsetHeight; // 强制重排
+        el.style.animation = '';
+      });
+    }
+    // 隐藏所有页面
+    function hideAllPages() {
+      document.getElementById('homePage').classList.remove('active');
+      document.getElementById('aboutPage').classList.remove('active');
+      document.getElementById('officialPage').classList.remove('active');
+      document.getElementById('versionPage').classList.remove('active');
+      document.getElementById('eventDetailPage').classList.remove('active');
+    }
+    // 页面切换
+    function showAbout() {
+      hideAllPages();
+      document.getElementById('aboutPage').classList.add('active');
+      window.scrollTo(0, 0);
+      var aboutElements = document.querySelectorAll('#aboutPage .fade-up');
+      replayAnimation(aboutElements);
+    }
+    function showOfficial() {
+      hideAllPages();
+      document.getElementById('officialPage').classList.add('active');
+      window.scrollTo(0, 0);
+      // 默认显示首页标签
+      switchTab('home');
+      var officialElements = document.querySelectorAll('#officialPage .fade-up');
+      replayAnimation(officialElements);
+    }
+    function showHome() {
+      hideAllPages();
+      document.getElementById('homePage').classList.add('active');
+      window.scrollTo(0, 0);
+      var homeElements = document.querySelectorAll('#homePage .fade-up');
+      replayAnimation(homeElements);
+    }
+    function showVersion(from) {
+      if (from) {
+        versionFrom = from;
+      }
+      hideAllPages();
+      document.getElementById('versionPage').classList.add('active');
+      window.scrollTo(0, 0);
+      var versionElements = document.querySelectorAll('#versionPage .fade-up');
+      replayAnimation(versionElements);
+    }
+    // 从版本日志返回
+    function backFromVersion() {
+      if (versionFrom === 'more') {
+        hideAllPages();
+        document.getElementById('officialPage').classList.add('active');
+        switchTab('about-join');
+        window.scrollTo(0, 0);
+      } else {
+        showAbout();
+      }
+    }
+    // 显示活动详情页
+    function showEventDetail() {
+      hideAllPages();
+      document.getElementById('eventDetailPage').classList.add('active');
+      window.scrollTo(0, 0);
+      var eventDetailElements = document.querySelectorAll('#eventDetailPage .fade-up');
+      replayAnimation(eventDetailElements);
+    }
+    // 返回活动标签页
+    function backToEvents() {
+      hideAllPages();
+      document.getElementById('officialPage').classList.add('active');
+      switchTab('events');
+      window.scrollTo(0, 0);
+    }
+    // 标签页切换
+    function switchTab(tabName) {
+      // 更新菜单激活状态
+      var navItems = document.querySelectorAll('.nav-item');
+      navItems.forEach(function(item) {
+        item.classList.remove('active');
+      });
+      // 根据tabName找到对应的菜单项并激活
+      var tabMap = { 'home': 0, 'players': 1, 'reviews': 2, 'events': 3, 'about-join': 4 };
+      if (navItems[tabMap[tabName]]) {
+        navItems[tabMap[tabName]].classList.add('active');
+      }
+      // 更新内容显示
+      var tabContents = document.querySelectorAll('.tab-content');
+      tabContents.forEach(function(content) {
+        content.classList.remove('active');
+      });
+      document.getElementById('tab-' + tabName).classList.add('active');
+      // 重新播放当前标签页的入场动画
+      var currentTab = document.getElementById('tab-' + tabName);
+      var fadeElements = currentTab.querySelectorAll('.fade-up');
+      replayAnimation(fadeElements);
+      window.scrollTo(0, 0);
+    }
+  </script>
+</body>
+</html>
